@@ -30,16 +30,12 @@ class CanopenlinuxRecipe(ConanFile):
         "fPIC": [True, False],
         "single_thread": [True, False],
         "config_debug": [True, False],
-        "use_globals": [True, False],
-        "multiple_OD": [True, False],
     }
     default_options = {
         "shared": False,
         "fPIC": True,
         "single_thread": True,
         "config_debug": False,
-        "use_globals": False,
-        "multiple_OD": False,
     }
 
     # Sources are located in the same place as this recipe, copy them to the recipe
@@ -66,6 +62,16 @@ class CanopenlinuxRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
+
+        # Setting to None will add the definition with no value
+        tc.preprocessor_definitions["CO_MULTIPLE_OD"] = None
+        # CO_USE_GLOBALS shouldn't define since CO_MULTIPLE_OD enabled.
+
+        if self.options.single_thread:
+            tc.preprocessor_definitions["CO_SINGLE_THREAD"] = None
+        if self.options.config_debug:
+            tc.preprocessor_definitions["CO_CONFIG_DEBUG"] = 0xFFFF
+
         tc.generate()
 
     def build(self):

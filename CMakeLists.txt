@@ -27,18 +27,27 @@ add_library(
   CANopenNode/storage/CO_storage.c
   CANopenNode/extra/CO_trace.c
   CANopenNode/CANopen.c)
+# Static link to specific OD.h may not suit for a library, so `CO_MULTIPLE_OD`
+# is raise at default.
+target_compile_definitions(canopenlinux PUBLIC CO_MULTIPLE_OD)
 target_include_directories(
-  canopenlinux
-  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/> CANopenNode
-         CANopenNode/example # the line actually include lots of thing.
-         $<INSTALL_INTERFACE:.>)
-add_executable(canopend CANopenNode/example/OD.c CO_main_basic.c)
+  canopenlinux PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                      CANopenNode $<INSTALL_INTERFACE:.>)
+
+# APP
+add_executable(canopend objdict/OD.c CO_main_basic.c)
+# include OD.h, aware override co_driver_target.h
+target_include_directories(
+  canopend PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/objdict>)
 target_link_libraries(canopend PUBLIC canopenlinux)
+
+add_subdirectory(cocomm)
 
 if(NOT BUILD_TESTING STREQUAL OFF)
   enable_testing()
 endif()
 
+# install library
 target_sources(
   canopenlinux
   PUBLIC FILE_SET

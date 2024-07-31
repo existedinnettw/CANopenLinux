@@ -3,6 +3,7 @@ project(PackageTest C CXX)
 
 find_package(canopenlinux CONFIG REQUIRED)
 
-add_executable(example src/example.cpp src/CO_driver.c src/OD.c)
+add_executable(example src/example.cpp src/OD.c)
+target_compile_definitions(example PUBLIC CO_MULTIPLE_OD)
 target_link_libraries(example canopenlinux::canopenlinux)
 target_include_directories(example PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
